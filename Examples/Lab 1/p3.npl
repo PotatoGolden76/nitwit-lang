@@ -1,0 +1,34 @@
+🗿 Problem 3
+
+🗿🗿🗿
+    FLCD Lab 1a problem 3:
+    Sum of n numbers
+🗿🗿🗿
+
+🔜
+    numerus s | n | i✋
+    numerus🧺[10] arr ✋
+
+    s 🟰 0✋
+    📖(n)✋
+
+    i 🟰 n✋
+    ➰(i > 0)🔜
+        📖(arr🧺[i➖1])✋
+        i 🟰 i ➖ 1✋
+    🔚
+    
+    i 🟰 n✋
+    ➰(i > 0)🔜
+        s 🟰 arr🧺[i➖1] ➕ s✋
+        i 🟰 i ➖ 1✋
+    🔚
+
+    ✏️(s)✋
+🔚
+
+    Data types so i don't forget:
+
+    numerus - numerical
+    filum   - string
+    veritas - boolean
