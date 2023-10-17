@@ -1,15 +1,15 @@
-🗿 Problem 2
+🗿 Problem 4
 
 🗿🗿🗿
-    FLCD Lab 1a problem 2:
-    Compute max of 3 numbers
+    FLCD Lab 1a problem 4:
+    Lexical errors
 🗿🗿🗿
 
 🔜
-    numerus a | b | c ✋
+    humerus a | b | c ✋ 🗿 "humerus" is not a valid token
 
     📖(a)✋
-    📖(b)✋
+    📚(b)✋ 🗿 "📚" is not a valid token
     📖(c)✋
 
     ❓(a ↘️ b et a ↘️ c)🔜
