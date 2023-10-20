@@ -1,0 +1,43 @@
+<identifier> ::= <word> | <word><number>
+
+<word> ::= <letter> | <word><letter>
+<letter> ::= "A" | "B" | . ..| "Z"
+
+<number> ::= <digit> | <number><digit>
+<digit> ::= "0" | "1" |...| "9"
+
+
+<noconst> ::= "+" <number> | "-" <number> | <number>
+<character> ::= <letter> | <digit>
+<string> ::= <string> | <string><character>
+<bool> ::= "verum" | "falsus"
+
+
+<program> ::= <compound_statement> | <program> <compound_statement>
+
+<var_declaration> ::= <type> <identifier_list> "✋"
+<identifier_list> ::= <identifier> | <var_declaration> "|" <identifier>
+
+<type> ::= <var_type> | <array_type>
+<var_type> ::= "veritas" | "unicus" | "numerus" | "filum"
+<array_type> ::= <var_type> "🧺[" <number> "]" 
+
+<statement_list> ::= <statement> "✋" | <statement> "✋" <statement_list>
+
+<statement> ::= <instruction> | <block>
+<instruction> ::= <assign_statement> | <io_statement>
+<block> ::= <compound_statement> | <if_statement> |  <while_statement> 
+
+<assign_statement> ::= <identifier> "🟰" <expression>
+<io_statement> ::= "📖" "(" <identifier> ")" | "✏️" "(" <identifier> ")"
+<compound_statement> ::= "🔜" <statement_list> "🔚"
+<if_statement> ::= "❓" "(" <condition> ")" <compound_statement> | "❓" "(" <condition> ")" <compound_statement> "❗" <compound_statement> |
+                    | "❓" "(" <condition> ")" <compound_statement> "❗" <if_statement>
+<while_statement> ::= "➰" "(" <condition> ")" <compound_statement>
+
+<expression> ::= <expression> "➕" <term> | <expression> "➖" <term> | <term>
+<term> ::= <term> "✖️" <factor> | <term> "➗" <factor> | <term> "〰️" <factor> | <factor>
+<factor> ::= "(" <expression> ")" | <identifier>
+
+<condition> ::= <expression> <relation> <expression> | <condition> "et" <condition> | <condition> "aut" <condition>
+<relation> ::= "↘️" | "➡️" | "↗️" | "⬅️" | "♒" | "⛔"
