@@ -1,0 +1,20 @@
+The Nitwit programming language satisfies all the requirements, as follows:
+
+- 2 simple data types and a user-defined type: numerus, veritas, filum, arrays, unicus
+
+- statements: if, while, compound, assignment, io
+
+- assignment: <assign_statement> ::= <identifier> "🟰" <expression>
+
+- input/output: <io_statement> ::= "📖" "(" <identifier> ")" | "✏️" "(" <identifier> ")"
+
+- conditional: <if_statement> ::= "❓" "(" <condition> ")" <compound_statement> | "❓" "(" <condition> ")" <compound_statement> "❗" <compound_statement> |
+                    | "❓" "(" <condition> ")" <compound_statement> "❗" <if_statement>
+
+- loop: <while_statement> ::= "➰" "(" <condition> ")" <compound_statement>
+
+i) Identifiers: no more than 256 characters --> respected
+
+ii) constants: corresponding to your types --> respected
+
+As per my review, I would say this is a complete language considering the necessary specifications, albeit a bit of a pain to read, but I respect the grind. - G.M.A.
