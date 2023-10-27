@@ -3,20 +3,21 @@ class SymbolTable:
         self.size = size
         self.data = [[] for _ in range(size)]
 
-    def _hash_function(self, key):
-        ## TODO: think of a good hash
-        pass
+    def _hash_function(self, token):
+        return sum([ord(x) for x in token]) % self.size
 
-    def insert(self, key):
-        index = self._hash_function(key)
-        if self.data[index] is None:
-            self.data[index] = []
-        self.data[index].append(key)
+    def put(self, token):
+        index = self._hash_function(token)
+        self.data[index].append(token)
 
-    def get(self, key):
-        ## TODO: implementation
-        pass
+    def get(self, token):
+        index = self._hash_function(token)
+        try:
+            return (index, self.data[index].index(token))
+        except:
+            return None   
 
-    def delete(self, key):
-        ## TODO: implementation
-        pass
+    def delete(self, token):
+        index = self._hash_function(token)
+        self.data[index].remove(token)
+
