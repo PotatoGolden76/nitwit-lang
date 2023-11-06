@@ -9,6 +9,7 @@ class TestSymbolTable(unittest.TestCase):
         table.put("banana")
         table.put("cherry")
 
+
         self.assertEqual(table.get("apple"), (0, 0))
         self.assertEqual(table.get("banana"), (4, 0))
         self.assertEqual(table.get("cherry"), (3, 0))
