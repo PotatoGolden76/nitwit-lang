@@ -13,22 +13,16 @@
     📖(n)✋
 
     i 🟰 n✋
-    ➰(i > 0)🔜
+    ➰(i ➡️ 0)🔜
         📖(arr🧺[i➖1])✋
         i 🟰 i ➖ 1✋
     🔚
     
     i 🟰 n✋
-    ➰(i > 0)🔜
+    ➰(i ➡️ 0)🔜
         s 🟰 arr🧺[i➖1] ➕ s✋
         i 🟰 i ➖ 1✋
     🔚
 
     ✏️(s)✋
 🔚
-
-    Data types so i don't forget:
-
-    numerus - numerical
-    filum   - string
-    veritas - boolean
