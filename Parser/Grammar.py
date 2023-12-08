@@ -98,7 +98,7 @@ class Grammar:
 
 
 if __name__ == "__main__":
-    gr = Grammar.from_file("g1.txt")
+    gr = Grammar.from_file("g2.txt")
     print(gr.nonterminals)
     print()
     print(gr.terminals)
