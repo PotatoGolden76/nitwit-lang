@@ -1,3 +1,5 @@
+from texttable import Texttable
+
 class Grammar:
 
     def __init__(self, nonterminals, terminals, productions, start) -> None:
@@ -90,7 +92,7 @@ class Grammar:
 
                 # Check each symbol in the right-hand side
                 for symbol in rhs_symbols:
-                    if symbol not in self._terminals and symbol not in self._nonterminals:
+                    if symbol not in self._terminals and symbol not in self._nonterminals and symbol != 'ε':
                         print(f"Symbol {symbol} in production {lh} -> {rhs} is neither a terminal nor a non-terminal.")
                         return False
 
@@ -125,7 +127,7 @@ class Grammar:
         follow_set = set()
 
         if nonterminal == self._start:
-            follow_set.add('$')  # $ represents the end of input
+            follow_set.add('$')  # $ - end of input
 
         computed.add(nonterminal)
 
@@ -162,7 +164,44 @@ class Grammar:
                         follow_set.update(self.compute_follow(lh, computed))
 
         return follow_set
+    
 
+    def generate_parsing_table(self):
+        if not self.is_cfg():
+            print("Cannot generate parsing table for non-context-free grammar.")
+            return None
+
+        parsing_table = {}
+
+        for A in self._nonterminals:
+            prods = self.get_nonterminal_productions(A)
+            # print(prods)
+            for a in self._terminals:
+                for alternative in prods:
+                    if a in self.compute_first(alternative):
+                        parsing_table[(A, a)] = alternative
+                    elif 'ε' in self.compute_first(alternative) and a in self.compute_follow(A):
+                        parsing_table[(A, a)] = alternative
+
+        return parsing_table
+
+
+    def print_parsing_table(self):
+        parsing_table = self.generate_parsing_table()
+        if parsing_table is None:
+            return
+
+        table = Texttable()
+        table.add_row([''] + self._terminals + ['$'])
+
+        for nonterminal in self._nonterminals:
+            row = [nonterminal]
+            for terminal in self._terminals + ['$']:
+                entry = parsing_table.get((nonterminal, terminal), '')
+                row.append(entry)
+            table.add_row(row)
+
+        print(table.draw())
 
 if __name__ == "__main__":
     gr = Grammar.from_file("g1.txt")
@@ -183,3 +222,7 @@ if __name__ == "__main__":
     print("FOLLOW: ")
     for nt in gr.nonterminals:
         print(gr.compute_follow(nt))
+
+    print()
+    # gr.print_parsing_table()
+    gr.print_parsing_table()
