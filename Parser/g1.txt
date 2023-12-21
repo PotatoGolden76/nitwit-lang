@@ -1,8 +1,11 @@
 S A B C D
-a b c
++ * a ( )
 S
-S -> a A | a C
-A -> A B
-B -> b
-C -> a C | C D
-D -> b
+S -> B A
+A -> + B A
+A -> ε
+B -> D C
+C -> * D C
+C -> ε
+D -> ( S )
+D -> a

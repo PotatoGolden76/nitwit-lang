@@ -96,16 +96,90 @@ class Grammar:
 
         return True
 
+    def is_terminal(self, symbol):
+        return symbol in self._terminals
+
+    def is_nonterminal(self, symbol):
+        return symbol in self._nonterminals
+
+
+    def compute_first(self, symbol):
+        first_set = set()
+
+        if self.is_terminal(symbol):
+            first_set.add(symbol)
+        elif self.is_nonterminal(symbol):
+            productions = self.get_nonterminal_productions(symbol)
+
+            for production in productions:
+                rhs_symbols = production.split(" ")
+                first_set.update(self.compute_first(rhs_symbols[0]))
+
+        return first_set
+
+
+    def compute_follow(self, nonterminal, computed=None):
+        if computed is None:
+            computed = set()
+
+        follow_set = set()
+
+        if nonterminal == self._start:
+            follow_set.add('$')  # $ represents the end of input
+
+        computed.add(nonterminal)
+
+        for lh, rhs_list in self._productions.items():
+            for rhs in rhs_list:
+                rhs_symbols = rhs.split(" ")
+
+                if nonterminal in rhs_symbols:
+                    index = rhs_symbols.index(nonterminal)
+
+                    if index < len(rhs_symbols) - 1:
+                        next_symbol = rhs_symbols[index + 1]
+
+                        if next_symbol in self._nonterminals:
+                            if next_symbol not in computed:
+                                follow_set.update(self.compute_follow(next_symbol, computed))
+
+                            # Include first of the symbol after nonterminal in Follow set
+                            follow_set.update(self.compute_first(next_symbol))
+
+                            # Include epsilon in Follow set if everything after A is epsilon
+                            if 'ε' in self.compute_first(next_symbol):
+                                follow_set.update(self.compute_follow(lh, computed))
+
+                        elif next_symbol in self._terminals:
+                            follow_set.add(next_symbol)
+
+                    elif lh != nonterminal:
+                        if lh not in computed:
+                            follow_set.update(self.compute_follow(lh, computed))
+
+                    elif 'ε' in self.compute_first(nonterminal):
+                        # Include epsilon in Follow set for the current nonterminal
+                        follow_set.update(self.compute_follow(lh, computed))
+
+        return follow_set
+
 
 if __name__ == "__main__":
-    gr = Grammar.from_file("g2.txt")
-    print(gr.nonterminals)
-    print()
-    print(gr.terminals)
-    print()
-    print(gr.start)
-    print()
+    gr = Grammar.from_file("g1.txt")
+    print("Nonterminals: ", gr.nonterminals)
+    # print()
+    print("Terminals: ", gr.terminals)
+    # print()
+    print("Start: ", gr.start)
+    print("Productions:")
     for key in gr.productions:
-        print(f"{key} -> {gr.productions[key]}\n")
+        print(f"{key} -> {gr.productions[key]}")
+    print()
 
-    print(gr.is_cfg())
+    print("FIRST: ")
+    for nt in gr.nonterminals:
+        print(gr.compute_first(nt))
+    print()
+    print("FOLLOW: ")
+    for nt in gr.nonterminals:
+        print(gr.compute_follow(nt))
