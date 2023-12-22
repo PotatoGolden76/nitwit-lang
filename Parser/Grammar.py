@@ -1,5 +1,15 @@
 from texttable import Texttable
 
+
+class ParseTreeNode:
+    def __init__(self, symbol, children=None):
+        self.symbol = symbol
+        self.children = children if children is not None else []
+
+    def add_child(self, node):
+        self.children.append(node)
+
+
 class Grammar:
 
     def __init__(self, nonterminals, terminals, productions, start) -> None:
@@ -171,19 +181,83 @@ class Grammar:
             print("Cannot generate parsing table for non-context-free grammar.")
             return None
 
+        # Initialize the parsing table as a dictionary
         parsing_table = {}
 
-        for A in self._nonterminals:
-            prods = self.get_nonterminal_productions(A)
-            # print(prods)
-            for a in self._terminals:
-                for alternative in prods:
-                    if a in self.compute_first(alternative):
-                        parsing_table[(A, a)] = alternative
-                    elif 'ε' in self.compute_first(alternative) and a in self.compute_follow(A):
-                        parsing_table[(A, a)] = alternative
+        # Initialize table entries for each nonterminal and terminal to an empty string
+        for nonterminal in self._nonterminals:
+            for terminal in self._terminals + ['$']:  # Include the end-of-input symbol
+                parsing_table[(nonterminal, terminal)] = ""  # Use empty string instead of None
 
+        # Populate the parsing table
+        for nonterminal in self._nonterminals:
+            for production in self.get_nonterminal_productions(nonterminal):
+                # Compute FIRST of the right-hand side of the production
+                symbols = production.split()
+
+                for symbol in symbols:
+                    first_set = self.compute_first(symbol)  # Assuming compute_first works for both terminals and non-terminals
+
+                    for terminal in first_set:
+                        if terminal != 'ε':  # If epsilon is not in FIRST, add the production
+                            parsing_table[(nonterminal, terminal)] = production
+
+                    # If ε is in FIRST or production is ε, add the production for all terminals in FOLLOW(nonterminal)
+                    if 'ε' in first_set or production == 'ε':
+                        follow_set = self.compute_follow(nonterminal)
+                        for follow_terminal in follow_set:
+                            # Add the production to the parsing table if the cell is empty or contains an epsilon production
+                            if not parsing_table[(nonterminal, follow_terminal)] or 'ε' in parsing_table[(nonterminal, follow_terminal)]:
+                                parsing_table[(nonterminal, follow_terminal)] = production
+
+                    # If the symbol is a non-terminal and leads to ε, continue to the next symbol
+                    if 'ε' in first_set and symbol != symbols[-1]:
+                        continue
+                    else:
+                        break  # Break out of the loop if we've found a non-ε production or reached the end of the production
+
+        # Return the parsing table
         return parsing_table
+    
+
+    def ll1_parser(self, input_string):
+        input_string += '$'
+        input_tokens = [c for c in input_string]
+
+        root = ParseTreeNode(self._start)  # Root of the parse tree
+        stack = [('$', None), (self._start, root)]  # Stack holds tuples of (symbol, tree_node)
+
+        input_pointer = 0
+        parsing_table = self.generate_parsing_table()
+
+        while len(stack) > 1:  # The stack will always contain the end symbol '$'
+            stack_top, tree_node = stack[-1]
+            current_input = input_tokens[input_pointer]
+
+            if stack_top == current_input:
+                if stack_top == '$':
+                    return True, root  # Successful parsing and return root of the parse tree
+                else:
+                    stack.pop()
+                    input_pointer += 1
+            else:
+                rule = parsing_table.get((stack_top, current_input))
+                if rule:
+                    stack.pop()  # Pop the nonterminal
+                    children = []
+
+                    if rule != 'ε':
+                        for symbol in reversed(rule.split()):
+                            child_node = ParseTreeNode(symbol)
+                            children.append(child_node)
+                            stack.append((symbol, child_node))
+
+                    tree_node.children = children  # Attach children to the current node
+                else:
+                    return False, None  # Parsing error
+
+        return True, root  # Return the success status and the parse tree root
+
 
 
     def print_parsing_table(self):
@@ -203,8 +277,17 @@ class Grammar:
 
         print(table.draw())
 
+
+def print_tree(node, indent="", last=True):
+    prefix = "└── " if last else "├── "
+    print(indent + prefix + node.symbol)
+    indent += "    " if last else "│   "
+    for i, child in enumerate(node.children):
+        last_child = i == (len(node.children) - 1)  # Check if it's the last child
+        print_tree(child, indent, last_child)
+
 if __name__ == "__main__":
-    gr = Grammar.from_file("g1.txt")
+    gr = Grammar.from_file("./g1.txt")
     print("Nonterminals: ", gr.nonterminals)
     # print()
     print("Terminals: ", gr.terminals)
@@ -226,3 +309,12 @@ if __name__ == "__main__":
     print()
     # gr.print_parsing_table()
     gr.print_parsing_table()
+
+    input_string = input("Input String: ")
+    success, parse_tree_root = gr.ll1_parser(input_string)
+
+    if success:
+        print("Parsing successful! Here's the parse tree:")
+        print_tree(parse_tree_root)
+    else:
+        print("Parsing failed.")
