@@ -9,6 +9,9 @@ class ParseTreeNode:
     def add_child(self, node):
         self.children.append(node)
 
+    def __str__(self) -> str:
+        return str(self.symbol) + " " + str(self.children)
+
 
 class Grammar:
 
@@ -236,7 +239,7 @@ class Grammar:
 
             if stack_top == current_input:
                 if stack_top == '$':
-                    return True, root  # Successful parsing and return root of the parse tree
+                    return True, root, []  # Successful parsing and return root of the parse tree
                 else:
                     stack.pop()
                     input_pointer += 1
@@ -254,9 +257,9 @@ class Grammar:
 
                     tree_node.children = children  # Attach children to the current node
                 else:
-                    return False, None  # Parsing error
+                    return False, None, stack  # Parsing error
 
-        return True, root  # Return the success status and the parse tree root
+        return True, root, []  # Return the success status and the parse tree root
 
 
 
@@ -278,20 +281,24 @@ class Grammar:
         print(table.draw())
 
 
-def print_tree(node, indent="", last=True):
+def print_tree(node, indent="", last=True, file=None):
     prefix = "└── " if last else "├── "
-    print(indent + prefix + node.symbol)
+    if file:
+        file.write(str(indent + prefix + node.symbol + "\n"))    
+    else:
+        print(indent + prefix + node.symbol)
     indent += "    " if last else "│   "
     for i, child in enumerate(node.children):
         last_child = i == (len(node.children) - 1)  # Check if it's the last child
-        print_tree(child, indent, last_child)
+        if file:
+            print_tree(child, indent, last_child, file)
+        else:
+            print_tree(child, indent, last_child, None)
 
 if __name__ == "__main__":
     gr = Grammar.from_file("./g1.txt")
     print("Nonterminals: ", gr.nonterminals)
-    # print()
     print("Terminals: ", gr.terminals)
-    # print()
     print("Start: ", gr.start)
     print("Productions:")
     for key in gr.productions:
@@ -307,14 +314,21 @@ if __name__ == "__main__":
         print(gr.compute_follow(nt))
 
     print()
-    # gr.print_parsing_table()
     gr.print_parsing_table()
 
-    input_string = input("Input String: ")
-    success, parse_tree_root = gr.ll1_parser(input_string)
+    # input_string = input("Input String: ")
+    # success, parse_tree_root, stack = gr.ll1_parser(input_string)
 
-    if success:
-        print("Parsing successful! Here's the parse tree:")
-        print_tree(parse_tree_root)
-    else:
-        print("Parsing failed.")
+    with open("seq.txt", "r") as f:
+        success, parse_tree_root, stack = gr.ll1_parser(f.readline())
+        with open("out.txt", "w") as g:
+            if success:
+                g.write("Parsing successful! Here's the parse tree:\n")
+                print_tree(parse_tree_root, file=g)
+            else:
+                g.write("Parsing failed.\n")
+                for symbol, node in stack:
+                    g.write(f"{symbol} : {str(node)}\n")
+            g.flush()
+
+   
